@@ -1,0 +1,36 @@
+---
+title: "Community Contribution"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Setup  
+```{r installing packages, echo=FALSE}
+install.packages(c("dbplyr", "RMariaDB"))
+```
+## Connecting  
+```{r installing packages}
+library(RMariaDB)
+connection <- dbConnect(RMariaDB::MariaDB(), user='root', password='', dbname='pupil_eyetracking', host='localhost')
+```  
+Now connection is responsible for executing queries and other actions related to the database 
+```{r Displaying tables}
+dbListTables(connection)
+query = "SELECT user_ID, user_Name FROM users"
+rs = dbSendQuery(storiesDb,query)
+dbRows<-dbFetch(rs)
+dbRows
+```
+
+## Querying data from a table
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
