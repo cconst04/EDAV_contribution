@@ -1,36 +1,68 @@
 ---
-title: "Community Contribution"
+title: "GR5702 - Using SQL with R"
+author: "Samir Char, Christodoulos Constantinides"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
 ```
 
 ## Setup  
-```{r installing packages, echo=FALSE}
+```{r Installing packages, eval=FALSE, echo=TRUE}
 install.packages(c("dbplyr", "RMariaDB"))
 ```
 ## Connecting  
+Replace the database credentials   
 ```{r installing packages}
 library(RMariaDB)
-connection <- dbConnect(RMariaDB::MariaDB(), user='root', password='', dbname='pupil_eyetracking', host='localhost')
+connection <- dbConnect(RMariaDB::MariaDB(), user='root', password='', dbname='lahmansbaseballdb', host='localhost')
+``` 
+Now connection is responsible for executing queries and other actions related to the database  
+
+## Create - Read - Update - Delete operations
+We can also perform CRUD operations
+```{r Insert}
+query <- "INSERT INTO leagues(lgID, league, active) VALUES ('TT', 'Test League', 'N')"
+res <- dbSendQuery(connection,query)
+res
 ```  
-Now connection is responsible for executing queries and other actions related to the database 
-```{r Displaying tables}
+### Update  
+```{r Update}
+query <- "UPDATE leagues SET active='Y' WHERE lgID='TT'"
+res <- dbSendQuery(connection,query)
+res
+```
+### Delete  
+```{r Delete}
+query <- "DELETE FROM leagues WHERE lgID='TT'"
+res <- dbSendQuery(connection,query)
+res
+```  
+### Select  
+```{r Select}
 dbListTables(connection)
-query = "SELECT user_ID, user_Name FROM users"
-rs = dbSendQuery(storiesDb,query)
+query <- 'SELECT yearID, G_all FROM appearances WHERE playerID="willite01" ORDER BY yearID'
+rs <- dbSendQuery(connection,query)
 dbRows<-dbFetch(rs)
 dbRows
 ```
 
-## Querying data from a table
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+## Dataframe cleaning  
+Before visualizing our result we should do some cleaning like column type conversion.  
+```{r Cleaning the resulting frame}
+dbRows$yearID <- as.numeric(dbRows$yearID)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+## Visualizing our Dataframe  
+We are now ready to visualize our Dataframe.
+```{r Visualizing our query}
+library(tidyverse)
+ggplot(dbRows, aes(yearID, G_all)) + 
+  geom_line() + ggtitle("Games played by willite01") +
+  xlab("Year") + ylab("Games Played")
+
+```
+
