@@ -20,10 +20,16 @@ Replace the database credentials
 library(RMariaDB)
 connection <- dbConnect(RMariaDB::MariaDB(), user='root', password='', dbname='lahmansbaseballdb', host='localhost')
 ``` 
-Now connection is responsible for executing queries and other actions related to the database  
-
+Now connection is responsible for executing queries and other actions related to the database.   
+We can view which tables are in the database  
+```{r}
+dbListTables(connection)
+```
 ## Create - Read - Update - Delete operations
-We can also perform CRUD operations
+We can also perform CRUD operations  
+  
+## Insert
+
 ```{r Insert}
 query <- "INSERT INTO leagues(lgID, league, active) VALUES ('TT', 'Test League', 'N')"
 res <- dbSendQuery(connection,query)
@@ -43,7 +49,6 @@ res
 ```  
 ### Select  
 ```{r Select}
-dbListTables(connection)
 query <- 'SELECT yearID, G_all FROM appearances WHERE playerID="willite01" ORDER BY yearID'
 rs <- dbSendQuery(connection,query)
 dbRows<-dbFetch(rs)
@@ -61,7 +66,7 @@ We are now ready to visualize our Dataframe.
 ```{r Visualizing our query}
 library(tidyverse)
 ggplot(dbRows, aes(yearID, G_all)) + 
-  geom_line() + ggtitle("Games played by willite01") +
+  geom_line() + ggtitle("Games played by willite01 each year") +
   xlab("Year") + ylab("Games Played")
 
 ```
