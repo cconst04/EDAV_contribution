@@ -1,0 +1,103 @@
+---
+title: "Community Contribution"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Creating a MySQL database in AWS
+## Create a AWS account
+
+If you already have an AWS account you can skip this part.
+
+We need to create a AWS account and create a database. Don't worry, it will be completely free (actually, better than that because AWS gives us 50$ for free.) Enter https://aws.amazon.com/ and click on "Create AWS account", which should be on the top right corner.
+
+There are five simple steps that you'll see when creating the account:
+1. Set up email, password, username
+2. Account type. Select "personal"
+3. Billing information. Don't worry, you won't be charged!
+4. Confirm identity. An sms or email will be sent to you to confirm identity
+5. select your plan. Select the first option: "basic support - free"
+
+And you are set!
+
+## Create Relational DataBase instance in AWS
+
+Enter to https://console.aws.amazon.com/ and sign in with your account. Select "root user" if is not already selected. When logged in, you should see a search box in the top of the website like in the picture below (search box highlighted in red).
+
+
+![Click on the search box framed in red at top of site](images/console_main_site.png)
+
+Type "rds" and select the first option as shown below:
+
+![](images/rds_logo.png)
+
+This should bring you to the main AWS Relational Database panel. Please click on the "Create database"  orange button at the top of the site.
+
+![](images/rds_front_page.png)
+Now we need to configure the database. There are a lot of options here but we are only changing a few, so below I list the **changes** you need to make. This means that all other settings are left to default.
+
+Set the database in the following way:
+
+* **Engine Options**: MariaDB
+* **Template:**: free Tier. This is important so you don't get any charge.
+* **Settings**:
+  * DB Instance identifier: the name you want for the database, call it tutorialDB
+  * Credentials Settings: here you set a username and a password to access the database. I'm going to select user: admin and password: password. You can define the credentials however you want.
+* **Connectivity**:
+  * Public Access: yes
+  * VPC Security Group: Create New 
+  * New VPC security group name: tutorialVPC
+
+Finally click on the orange button at the end that says "Create database". This takes a few minutes to create. You know the database is all set when the status of the database becomes "available". 
+
+![After a few minutes your database should be up and running](images/db_status.png)
+
+##Connect to the database
+
+Click on the name of the database to see the connection information and copy the endpoint url and save it somewhere, you will need it later.
+
+Then, go click on the VPC security groups link under the Security section.
+
+![Left red box shows endpoint url. Right box shows vpc link](images/db_data.png)
+Then go all the way to the bottom of the page and click on edit inbound rules
+
+![](images/inbound_rules.png)
+
+A new tab should open and then add the following rule:
+
+![This rule will let you connect to your database from anywhere](images/new_rule.png)
+
+## Get some data!
+
+In this tutorial we are using Lahman's Baseball Database (LBDB), a famous database of baseball statistics, but you can use any database you like. To insert LBDB into our Amazon RDS, first we need to download the file "lahman-mysql-dump.sql" from the following github url: https://github.com/WebucatorTraining/lahman-baseball-mysql
+
+After this, we need to run the script inside the database. There are many ways to do this, here we are doing it through the AWS CloudShell. Other ways include running the script through DataGrip or through other programming languages.
+
+Open the terminal and upload the sql dump.
+
+![click upper right green box to open AWS CloudShell. Then click on actions (in red) and finally on upload file.](images/upload_file_terminal.png)
+
+Complete the following command by entering your credentials (username, password and host) where the "< , >" symbols appear. Run the command in the AWS CloudShell to run the script:
+
+```{bash eval=FALSE}
+cat lahman-mysql-dump.sql | sed s/utf8mb4_0900_ai_ci/utf8mb4_general_ci/ | 
+mysql --host=<DB ENDPOINT> --user=<USER> --password=<PASSWORD>
+```
+
+**Note**: The part sed s/utf8mb4_0900_ai_ci/utf8mb4_general_ci/ is probably not necessary if you are using another database. This is just for lahman's database because some particularities of this database.
+
+If you want to check that your database is ready, try running the following code in the AWS CloudShell:
+
+```{bash eval=FALSE}
+mysql --host=<DB ENDPOINT> --user=<USER> --password=<PASSWORD> -e "show databases;"
+```
+
+
+You should see your database listed in the results like in the image below:
+
+
+![](images/show_databases.png)
+
